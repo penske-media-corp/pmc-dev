@@ -27,6 +27,7 @@ address = ":8080"
 #
 # Required
 #
+#endpoint = "tcp://172.30.0.1:2375"
 endpoint = "unix:///var/run/docker.sock"
 
 # Default base domain used for the frontend rules.

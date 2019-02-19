@@ -12,6 +12,7 @@ services:
     privileged: true
     networks:
       pmc-docker-qs:
+        ipv4_address: 172.30.80.80
     ports:
       - 80:80
       - 443:443

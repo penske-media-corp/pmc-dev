@@ -13,7 +13,7 @@ PMC Docker Quickstart
 
 		~/.ssh/bitbucket.org_id_rsa
 		~/.ssh/github.com_id_rsa
- 
+
 
 # IMPORTANT NOTES
 - If you're using windows, make sure you setup your git client to check out and commit text file as is without line ending conversion.
@@ -27,11 +27,11 @@ PMC Docker Quickstart
 ---
 
 1. Create docker network: docker-network
-	
+
 		docker network create pmc-docker-qs --gateway 172.30.0.1 --subnet 172.30.0.0/16
 
 2. checkout repository: pmc-docker-qs
- 
+
 		git clone git@bitbucket.org:penskemediacorp/pmc-docker-qs.git
 
 3. Bring up the docker containers
@@ -53,10 +53,12 @@ We recommend the follow folder structures for project development:
 See README.md from individual project for additional instructions to bring up the development instance:
 
 For example, to start development pmc-uls3 project:
-		
+
 		mkdir -p pmc-docker-qs/laravel/pmc-uls3
 		cd pmc-docker-qs/laravel/pmc-uls3
 		git clone git@bitbucket.org:penskemediacorp/pmc-uls3.git .
 		docker-compose up -d
-		docker logs --follow uls
+		docker-compose logs --follow
 
+
+Ref: https://blogs.technet.microsoft.com/networking/2017/11/06/available-to-windows-10-insiders-today-access-to-published-container-ports-via-localhost127-0-0-1/
