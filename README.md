@@ -1,5 +1,7 @@
 # PMC Docker Quickstart
 
+![](pmc-docker-qs.png)
+
 ## Prerequisites
 
 1. Git client: use your favorite client or one of the following
