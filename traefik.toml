@@ -1,0 +1,33 @@
+logLevel="ERROR"
+defaultEntryPoints = ["http", "https"]
+
+[web]
+address = ":8080"
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+      [[entryPoints.https.tls.certificates]]
+      certFile = "/certs/_wildcard.pmcdev.local.pem"
+      keyFile = "/certs/_wildcard.pmcdev.local-key.pem"
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+domain = "*.pmcdev.local"
+watch = true
+exposedByDefault = true
+usebindportip = true
+swarmMode = false
+swarmModeRefreshSeconds = 15
+network = "docker-network"
+
+[docker.tls]
+ca = "/etc/ssl/ca.crt"
+cert = "/certs/_wildcard.pmcdev.local.pem"
+key = "/certs/_wildcard.pmcdev.local-key.pem"
+insecureSkipVerify = true

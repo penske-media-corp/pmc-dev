@@ -1,3 +1,6 @@
+*.crt
+*.key
+*.pem
+/config/ssh
 /laravel
 /wpvip
-/config/ssh
