@@ -24,10 +24,4 @@ exposedByDefault = true
 usebindportip = true
 swarmMode = false
 swarmModeRefreshSeconds = 15
-network = "docker-network"
 
-[docker.tls]
-ca = "/etc/ssl/ca.crt"
-cert = "/certs/_wildcard.pmcdev.local.pem"
-key = "/certs/_wildcard.pmcdev.local-key.pem"
-insecureSkipVerify = true
