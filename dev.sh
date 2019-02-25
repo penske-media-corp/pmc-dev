@@ -11,7 +11,7 @@ install_mkcert() {
 
 # @NOTE: to setup and start the container run
 # `source dev.sh && start_traefik`
-# @TODO: Make startup dynamic to conform to multipl environments
+# @TODO: Make startup configurable for multiple environments
 start_traefik() {
 	if [ -z "${PMC_TRAEFIK_IP}" ]
 		then export PMC_TRAEFIK_IP='172.30.80.80'
