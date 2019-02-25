@@ -1,8 +1,6 @@
 # PMC-DEV
 Local dev configuration/tools to ease workflow with PMC projects for local dev. This project should assume nothing about the host and remain as configurable as possible.
 
-"Perfection is Achieved Not When There Is Nothing More to Add, But When There Is Nothing Left to Take Away"
-
 ## Main Features
 - Local web proxy using traefik so multiple instances of PMC projects can be ran simultaneously.
 - SSL instructions and configuration using mkcert
