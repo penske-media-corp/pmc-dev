@@ -8,7 +8,6 @@ services:
     labels:
       - "traefik.frontend.rule=HostRegexp:{domain:^traefik.*}"
 
-    privileged: true
     networks:
       traefik:
         ipv4_address: ${PMC_TRAEFIK_IP}
