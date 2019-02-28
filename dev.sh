@@ -17,6 +17,7 @@ start_traefik() {
 		then export PMC_TRAEFIK_IP='172.30.80.80'
 	fi
 
+
 	if [[ ! -f "_wildcard.pmcdev.local.pem" && ! -f "_wildcard.pmcdev.local-key.pem" ]]
 		then install_mkcert '*.pmcdev.local'
 	fi

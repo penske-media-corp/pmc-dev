@@ -4,7 +4,6 @@ services:
   traefik:
     image: traefik
     restart: unless-stopped
-    command: '-c /dev/null --web --docker --logLevel=DEBUG --defaultEntryPoints=''http'',''https'' --entryPoints="Name:https Address::443 TLS:/certs/_wildcard.pmcdev.local.pem,/certs/_wildcard.pmcdev.local-key.pem" --entryPoints="Name:http Address::80"'
     labels:
       - "traefik.frontend.rule=HostRegexp:{domain:^traefik.*}"
 
@@ -17,6 +16,7 @@ services:
       - '8080:8080'
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
+      - './traefik.toml:/etc/traefik/traefik.toml'
       - './_wildcard.pmcdev.local.pem:/certs/_wildcard.pmcdev.local.pem'
       - './_wildcard.pmcdev.local-key.pem:/certs/_wildcard.pmcdev.local-key.pem'
 networks:
