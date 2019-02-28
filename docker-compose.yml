@@ -11,14 +11,14 @@ services:
       traefik:
         ipv4_address: ${PMC_TRAEFIK_IP}
     ports:
-      - '80:80'
       - '443:443'
       - '8080:8080'
+      - '80:80'
     volumes:
-      - '/var/run/docker.sock:/var/run/docker.sock'
-      - './traefik.toml:/etc/traefik/traefik.toml'
-      - './_wildcard.pmcdev.local.pem:/certs/_wildcard.pmcdev.local.pem'
       - './_wildcard.pmcdev.local-key.pem:/certs/_wildcard.pmcdev.local-key.pem'
+      - './_wildcard.pmcdev.local.pem:/certs/_wildcard.pmcdev.local.pem'
+      - './traefik.toml:/etc/traefik/traefik.toml'
+      - '/var/run/docker.sock:/var/run/docker.sock'
 networks:
   default:
     external:
