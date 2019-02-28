@@ -15,8 +15,8 @@ services:
       - '8080:8080'
       - '80:80'
     volumes:
-      - './_wildcard.pmcdev.local-key.pem:/certs/_wildcard.pmcdev.local-key.pem'
-      - './_wildcard.pmcdev.local.pem:/certs/_wildcard.pmcdev.local.pem'
+      - './_wildcard.${PMC_TRAEFIK_DOMAIN}-key.pem:/certs/_wildcard.${PMC_TRAEFIK_DOMAIN}-key.pem'
+      - './_wildcard.${PMC_TRAEFIK_DOMAIN}.pem:/certs/_wildcard.${PMC_TRAEFIK_DOMAIN}.pem'
       - './traefik.toml:/etc/traefik/traefik.toml'
       - '/var/run/docker.sock:/var/run/docker.sock'
 networks:
