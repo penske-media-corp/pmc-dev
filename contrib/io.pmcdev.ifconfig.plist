@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PATH</key>
+		<string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/local/sbin</string>
+	</dict>
+	<key>Label</key>
+	<string>io.pmcdev.ifconfig</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/sbin/ifconfig</string>
+		<string>lo0</string>
+		<string>alias</string>
+		<string>127.0.0.2</string>
+	</array>
+	<key>README</key>
+	<string>Adds another loopback IP address at boot. Install this in /Library/LaunchDaemons/ - permissions should be 644 and it should be owned by root:wheel</string>
+	<key>Author</key>
+	<string>Corey Gilmore</string>
+	<key>RunAtLoad</key>
+	<true/>
+</dict>
+</plist>
