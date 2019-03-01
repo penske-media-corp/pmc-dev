@@ -11,9 +11,9 @@ services:
       traefik:
         ipv4_address: ${PMC_TRAEFIK_IP}
     ports:
-      - '443:443'
-      - '8080:8080'
-      - '80:80'
+      - "${PMC_DEV_BIND_IP}:80:80"
+      - "${PMC_DEV_BIND_IP}:443:443"
+      - "${PMC_DEV_BIND_IP}:8080:8080"
     volumes:
       - './_wildcard.pmcdev.local-key.pem:/certs/_wildcard.pmcdev.local-key.pem'
       - './_wildcard.pmcdev.local.pem:/certs/_wildcard.pmcdev.local.pem'
