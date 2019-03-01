@@ -1,50 +1,26 @@
 version: '3'
 
 services:
-
   traefik:
-    restart: always
-    image: traefik:1.7
-    container_name: traefik
+    image: traefik
+    restart: unless-stopped
     labels:
       - "traefik.frontend.rule=HostRegexp:{domain:^traefik.*}"
-      - "traefik.port=8080" # enable this port so traefik can proxy it
-    privileged: true
     networks:
-      pmc-docker-qs:
-        ipv4_address: 172.30.80.80
+      traefik:
+        ipv4_address: ${PMC_TRAEFIK_IP}
     ports:
-      - 80:80
-      - 443:443
+      - "${PMC_DEV_BIND_IP}:443:443"
+      - "${PMC_DEV_BIND_IP}:8080:8080"
+      - "${PMC_DEV_BIND_IP}:80:80"
     volumes:
-      - /var/log/docker-container/traefik:/var/log
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./config/traefik/traefik.toml:/etc/traefik/traefik.toml
-      - ./config/ssl/local.pmcdev.io.crt:/etc/ssl/local.pmcdev.io.crt
-      - ./config/ssl/local.pmcdev.io.key:/etc/ssl/local.pmcdev.io.key
-
-  mysql:
-    restart: always
-    image: mysql:5.7
-    container_name: mysql
-    labels:
-      - "traefik.enable=false"
-    networks:
-      pmc-docker-qs:
-    ports:
-      - 3306:3306
-    environment:
-      - MYSQL_ROOT_PASSWORD=
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-    volumes:
-      - data-volume:/var/lib/mysql
-
-volumes:
-  data-volume:
-
+      - './_wildcard.pmcdev.local-key.pem:/certs/_wildcard.pmcdev.local-key.pem'
+      - './_wildcard.pmcdev.local.pem:/certs/_wildcard.pmcdev.local.pem'
+      - './traefik.toml:/etc/traefik/traefik.toml'
+      - '/var/run/docker.sock:/var/run/docker.sock'
 networks:
   default:
     external:
-       name: pmc-docker-qs
-  pmc-docker-qs:
+       name: traefik
+  traefik:
     external: true

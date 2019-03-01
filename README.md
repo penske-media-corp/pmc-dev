@@ -1,150 +1,69 @@
-# PMC Docker Quickstart
+# PMC-DEV
+Local dev configuration/tools to ease workflow with PMC projects for local dev. This project should assume nothing about the host and remain as configurable as possible.
 
-![](pmc-docker-qs.png)
+## Main Features
+- Local web proxy using traefik so multiple instances of PMC projects can be ran simultaneously.
+- SSL instructions and configuration using mkcert
 
-## Prerequisites
+## Setup & prerequisites
+- Ensure the following are up to date and installed on the host system
+	- git
+	- docker
+	- docker-compose
+	- mkcert
+- Clone this repository
+- Log into Docker Hub
+	- You will need to be added to the PMC Docker Hub org - ask in #web-infrastructure-op
+	- After installing Docker: `docker login`
+- Add any host entries
+	- `127.0.0.1 traefik.pmcdev.local`
+	- `127.0.0.1 <theme_folder_name>.pmcdev.local`
 
-1. Git client: use your favorite client or one of the following
-	- Windows: https://tortoisesvn.net/
-	- Mac/Windows: http://www.sourcetreeapp.com/
-	- Mac OS X: The Command Line
-2. Install Docker: https://docs.docker.com/install/
-3. Install Docker Compose: https://docs.docker.com/compose/install/
-4. Generate ssh key without password that have access to bitbucket & github repository:
-
-		~/.ssh/bitbucket.org_id_rsa
-		~/.ssh/github.com_id_rsa
-
-
-## IMPORTANT NOTES
-- If you're using windows, make sure you setup your git client to check out and commit text file as is without line ending conversion.
-
-        core.autocrlf=false
-        core.safecrlf=false
-        core.eol=lf
-
-
-## Setup instructions
-
-1. Create docker network: docker-network
-
-		docker network create pmc-docker-qs --gateway 172.30.0.1 --subnet 172.30.0.0/16
-
-2. checkout repository: pmc-docker-qs
-
-		git clone git@bitbucket.org:penskemediacorp/pmc-docker-qs.git /pmc-docker-qs
-
-3. Bring up the docker containers
-
-		cd /pmc-docker-qs
-		docker-compose up -d
-
-4. Verify services are up and running by visiting https://traefix.local.pmcdev.io
-	
-
-## Project Development
-
-We recommend the follow folder structures for project development:
-
-![](folder-structures.png)
-
-- pmc-docker-qs/laravel
-	- Laravel projects
-- pmc-docker-qs/wpvip
-	- WPCOMP VIP & VIP GO projects
-
-See README.md from individual project for additional instructions to bring up the development instance:
-
-## Examples
-
-#### Laravel project
-
-		mkdir -p /pmc-docker-qs/laravel/pmc-uls3
-		cd /pmc-docker-qs/laravel/pmc-uls3
-		git clone git@bitbucket.org:penskemediacorp/pmc-uls3.git .
-		docker-compose up -d
-		docker-compose logs --follow
-
-#### WPCOM VIP project
-
-		mkdir -p /pmc-docker-qs/wpvip/pmc-plugins
-		mkdir -p /pmc-docker-qs/wpvip/pmc-wwd-2016
-
-		cd /pmc-docker-qs/wpvip/pmc-plugins
-		git clone git@bitbucket.org:penskemediacorp/pmc-plugins.git .
-
-		cd /pmc-docker-qs/wpvip/pmc-wwd-2016
-		git clone git@bitbucket.org:penskemediacorp/pmc-wwd-2016.git .
-
-		docker-compose up -d
-		docker-compose logs --follow
-
-#### VIP GO VIP project
-
-		mkdir -p /pmc-docker-qs/wpvip/pmc-plugins
-		mkdir -p /pmc-docker-qs/wpvip/pmc-core-v2
-		mkdir -p /pmc-docker-qs/wpvip/pmc-rollingstone-2018
-
-		cd /pmc-docker-qs/wpvip/pmc-plugins
-		git clone git@bitbucket.org:penskemediacorp/pmc-plugins.git .
-
-		cd /pmc-docker-qs/wpvip/pmc-core-v2
-		git clone git@bitbucket.org:penskemediacorp/pmc-core-v2.git .
-
-		cd /pmc-docker-qs/wpvip/pmc-rollingstone-2018
-		git clone git@bitbucket.org:penskemediacorp/pmc-rollingstone-2018.git .
-
-		docker-compose up -d
-		docker-compose logs --follow
-
-#### WP self host custom project using pmc-plugins
-
-		mkdir -p /pmc-docker-qs/wpvip/pmc-plugins
-		mkdir -p /pmc-docker-qs/wpvip/pmc-sourcingjournal-2018
-
-		cd /pmc-docker-qs/wpvip/pmc-plugins
-		git clone git@bitbucket.org:penskemediacorp/pmc-sourcingjournal-2018.git .
-
-		cd /pmc-docker-qs/wpvip/pmc-plugins
-		git clone git@bitbucket.org:penskemediacorp/pmc-sourcingjournal-2018.git .
-
-		docker-compose up -d
-		docker-compose logs --follow
-
-#### WP non-standard project (legacy)
-
-		mkdir -p /pmc-docker-qs/wpengine/pmc-artnews
-
-		cd /pmc-docker-qs/wpengine/pmc-artnews
-		git clone git@bitbucket.org:penskemediacorp/pmc-artnews.git .
-
-		docker-compose up -d
-		docker-compose logs --follow
-
-## Setup DNS entries
-	
-We will add a domain A record for *.local.pmcdev.io to one of the IP to be determine: 127.0.0.1 or 172.30.0.1
-
-For now, use one of following IP for the hosts entry for each of the site domain name.   
-
-#### Use localhost ip: 127.0.0.1
-	
-		127.0.0.1 traefik.local.pmcdev.io
-		127.0.0.1 wwd.local.pmcdev.io
-		127.0.0.1 uls.local.pmcdev.io
-		127.0.0.1 rollingstone.local.pmcdev.io
-		127.0.0.1 artnews.local.pmcdev.io
-
-#### Use the provisioned docker network ip: 172.30.0.1
-
-		172.30.0.1 traefik.local.pmcdev.io
-		172.30.0.1 wwd.local.pmcdev.io
-		172.30.0.1 uls.local.pmcdev.io
-		172.30.0.1 rollingstone.local.pmcdev.io
-		172.30.0.1 artnews.local.pmcdev.io
+- Start the proxy and setup environment
+	- `source dev.sh && start_traefik`
+	- The traefik dashboard is at http://traefik.pmcdev.local:8080/dashboard/
 
 
-## Windows 10 references: 
+##  Proxied Sites
+Each site to be proxied needs a valid configuration. Documentation for configuration is here: https://confluence.pmcdev.io/x/QIfJAQ
 
-- [https://blogs.technet.microsoft.com/networking/2017/11/06/available-to-windows-10-insiders-today-access-to-published-container-ports-via-localhost127-0-0-1/](https://blogs.technet.microsoft.com/networking/2017/11/06/available-to-windows-10-insiders-today-access-to-published-container-ports-via-localhost127-0-0-1/)
+To launch a configured site the general process is:
 
+	cd <theme_dir>
+	docker-compose up -d
+	# path to a private key with bitbucket/github access -- don't use a password protected key, it's a pain
+	docker-compose run -v /path/to/ssh_rsa_privkey/root/.ssh/id_rsa --rm pipeline-build
+
+
+## Troubleshooting
+
+### Viewing Logs
+- Viewing logs for the container: `docker-compose logs`
+- To stream logs: `docker-compose logs -f`
+
+### Force Rebuild the Container
+`docker-compose down`
+`source dev.sh && start_traefik --force-recreate`
+
+### Mac: Cannot register vmnetd when launching Docker
+If you receive an error on Mac that says:
+> Cannot register vmnetd: The operation couldn't be completed. (CFErrorDomainLaunchd error 2.)
+And it prompts you to reset Docker to factory defaults, it might be a permissions issue.
+
+Try running: `sudo launchctl load -w /Library/LaunchDaemons/com.docker.vmnetd.plist`
+
+If the output is "Path had bad ownership/permissions" then run:
+
+	sudo chown root:wheel /Library/LaunchDaemons/com.docker.vmnetd.plist
+	sudo chmod 644 /Library/LaunchDaemons/com.docker.vmnetd.plist
+	sudo launchctl enable system/com.docker.vmnetd
+
+And re-launch Docker.
+
+## Advanced
+
+### Binding to a specific IP address
+By default Traefik will bind to all interfaces - you can override this with the `PMC_DEV_BIND_IP` environment variable. If you change this you will need to update your host entries as well.
+
+#### Add Additional Loopback Addresses on Mac OS
+To add another loopback IP address on Mac, install the Launch Daemon from [contrib/io.pmcdev.ifconfig.plist](contrib/io.pmcdev.ifconfig.plist), and set `PMC_DEV_BIND_IP` to be `127.0.0.2` (or whatever IP you configure in the Launch Daemon).
