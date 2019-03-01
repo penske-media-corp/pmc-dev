@@ -9,10 +9,6 @@ install_mkcert() {
 # @NOTE: run this to setup and start the container for traefik
 # `source dev.sh && start_traefik`
 start_traefik() {
-	if [ -z "${PMC_TRAEFIK_DOMAIN}" ]
-		then export PMC_TRAEFIK_DOMAIN="pmcdev.local"
-	fi
-
 	if [ -z "${PMC_TRAEFIK_GATEWAY}" ]
 		then export PMC_TRAEFIK_GATEWAY='172.30.0.1'
 	fi
@@ -29,8 +25,8 @@ start_traefik() {
 		then export PMC_TRAEFIK_GATEWAY='172.30.0.0/16'
 	fi
 
-	if [[ ! -f "_wildcard.${PMC_TRAEFIK_DOMAIN}.pem" && ! -f "_wildcard.${PMC_TRAEFIK_DOMAIN}-key.pem" ]]
-		then install_mkcert "*.${PMC_TRAEFIK_DOMAIN}"
+	if [[ ! -f "_wildcard.pmcdev.local.pem" && ! -f "_wildcard.pmcdev.local-key.pem" ]]
+		then install_mkcert "*.pmcdev.local"
 	fi
 
 	if [ -z "$(docker network list | grep traefik )" ]
