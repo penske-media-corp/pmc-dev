@@ -24,7 +24,7 @@ start_traefik() {
 	fi
 
 	if [ -z "${PMC_TRAEFIK_SUBNET}" ] ; then
-		export PMC_TRAEFIK_GATEWAY='172.30.0.0/16'
+		export PMC_TRAEFIK_SUBNET='172.30.0.0/16'
 	fi
 
 	if [ -z "${PMC_TRAEFIK_NETWORK}" ] ; then
