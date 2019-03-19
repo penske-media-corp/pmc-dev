@@ -23,7 +23,6 @@ Local dev configuration/tools to ease workflow with PMC projects for local dev. 
 	- `source dev.sh && start_traefik`
 	- The traefik dashboard is at http://traefik.pmcdev.local:8080/dashboard/
 
-
 ##  Proxied Sites
 Each site to be proxied needs a valid configuration. Documentation for configuration is here: https://confluence.pmcdev.io/x/QIfJAQ
 
@@ -33,7 +32,6 @@ To launch a configured site the general process is:
 	docker-compose up -d
 	# path to a private key with bitbucket/github access -- don't use a password protected key, it's a pain
 	docker-compose run -v /path/to/ssh_rsa_privkey/root/.ssh/id_rsa --rm pipeline-build
-
 
 ## Troubleshooting
 
