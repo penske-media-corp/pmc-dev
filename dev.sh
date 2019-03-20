@@ -54,16 +54,14 @@ traefik_down() {
 	setup_env
 	docker-compose down
 }
-# @NOTE: run this to setup and up the container for traefik
-# `source dev.sh && up_traefik`
-traefik() {
 
+traefik() {
 	if [[ ! -f "_wildcard.pmcdev.local.pem" && ! -f "_wildcard.pmcdev.local-key.pem" ]] ; then
 		install_mkcert '*.pmcdev.local'
 	fi
 
 	if [ 'up' == "${1}" ]
-		then traefik_up
+		then traefik_up "${2}"
 	fi
 
 	if [ 'down' == "${1}" ]

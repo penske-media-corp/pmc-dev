@@ -10,28 +10,29 @@ Local dev configuration/tools to ease workflow with PMC projects for local dev. 
 	- git
 	- docker
 	- docker-compose
-	- mkcert
+	- [mkcert] (https://github.com/FiloSottile/mkcert)
 - Clone this repository
 - Log into Docker Hub
-	- You will need to be added to the PMC Docker Hub org - ask in #web-infrastructure-op
+	- You might need to be added to the PMC Docker Hub org - ask in #web-infrastructure-op
 	- After installing Docker: `docker login`
 - Add any host entries
 	- `127.0.0.1 traefik.pmcdev.local`
 	- `127.0.0.1 <theme_folder_name>.pmcdev.local`
 
 - Start the proxy and setup environment
-	- `source dev.sh && start_traefik`
-	- The traefik dashboard is at http://traefik.pmcdev.local:8080/dashboard/
+	- `source dev.sh && traefik up`
+	- The traefik dashboard is at http://traefik.pmcdev.local:8080/dashboard/ or 0.0.0.0:8080
+	- Once the proxy is start
 
 ##  Proxied Sites
 Each site to be proxied needs a valid configuration. Documentation for configuration is here: https://confluence.pmcdev.io/x/QIfJAQ
 
 To launch a configured site the general process is:
 
-	cd <theme_dir>
-	docker-compose up -d
-	# path to a private key with bitbucket/github access -- don't use a password protected key, it's a pain
-	docker-compose run -v /path/to/ssh_rsa_privkey/root/.ssh/id_rsa --rm pipeline-build
+	- cd <theme_dir>
+	- docker-compose up -d
+	- docker-compose run -v /path/to/ssh_rsa_privkey/root/.ssh/id_rsa --rm pipeline-build
+	-  path to a private key with bitbucket/github access -- don't use a password protected key, it's a pain
 
 ## Troubleshooting
 
@@ -41,7 +42,7 @@ To launch a configured site the general process is:
 
 ### Force Rebuild the Container
 `docker-compose down`
-`source dev.sh && start_traefik --force-recreate`
+`source dev.sh && traefik up`
 
 ### Mac: Cannot register vmnetd when launching Docker
 If you receive an error on Mac that says:
