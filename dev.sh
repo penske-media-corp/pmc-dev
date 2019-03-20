@@ -12,10 +12,8 @@ install_mkcert() {
 	mkcert "${1}"
 }
 
-# @NOTE: run this to setup and start the container for traefik
-# `source dev.sh && start_traefik`
-start_traefik() {
-	if [ -z "$PMC_TRAEFIK_IP" ] ; then
+setup_env() {
+	if [ -z "${PMC_TRAEFIK_IP}" ] ; then
 		export PMC_TRAEFIK_IP='172.30.80.80'
 	fi
 
@@ -31,15 +29,14 @@ start_traefik() {
 		export PMC_TRAEFIK_NETWORK='traefik'
 	fi
 
-	if [ -z "$PMC_DEV_BIND_IP" ] ; then
+	if [ -z "${PMC_DEV_BIND_IP}" ] ; then
 		# Bind to all interfaces by default
 		export PMC_DEV_BIND_IP='0.0.0.0'
 	fi
+}
 
-	if [[ ! -f "_wildcard.pmcdev.local.pem" && ! -f "_wildcard.pmcdev.local-key.pem" ]] ; then
-		install_mkcert '*.pmcdev.local'
-	fi
-
+traefik_up() {
+	setup_env
 	if [ -z "$(docker network list | grep traefik )" ] ; then
 		docker network create traefik --gateway $PMC_TRAEFIK_GATEWAY --subnet $PMC_TRAEFIK_SUBNET
 	fi
@@ -50,5 +47,24 @@ start_traefik() {
 		else
 			docker-compose up -d
 		fi
+	fi
+}
+
+traefik_down() {
+	setup_env
+	docker-compose down
+}
+
+traefik() {
+	if [[ ! -f "_wildcard.pmcdev.local.pem" && ! -f "_wildcard.pmcdev.local-key.pem" ]] ; then
+		install_mkcert '*.pmcdev.local'
+	fi
+
+	if [ 'up' == "${1}" ]
+		then traefik_up "${2}"
+	fi
+
+	if [ 'down' == "${1}" ]
+		then traefik_down
 	fi
 }
