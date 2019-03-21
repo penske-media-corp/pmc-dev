@@ -31,8 +31,9 @@ To launch a configured site the general process is:
 
 	- cd <theme_dir>
 	- docker-compose up -d
-	- docker-compose run -v /path/to/ssh_rsa_privkey/root/.ssh/id_rsa --rm pipeline-build
+	- docker-compose run -v /path/to/ssh_rsa_privkey:/root/.ssh/id_rsa --rm pipeline-build
 	-  path to a private key with bitbucket/github access -- don't use a password protected key, it's a pain
+	-  note: The colon between your privkey and `/root/.ssh/id_rsa`
 
 ## Troubleshooting
 
