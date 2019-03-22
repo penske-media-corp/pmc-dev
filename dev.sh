@@ -61,7 +61,7 @@ traefik() {
 	fi
 
 	if [ 'up' == "${1}" ]
-		then traefik_up "${2}"
+		then traefik_up "${1}"
 	fi
 
 	if [ 'down' == "${1}" ]
