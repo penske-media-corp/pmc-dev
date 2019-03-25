@@ -20,7 +20,7 @@ services:
       - './traefik.toml:/etc/traefik/traefik.toml'
   watchtower:
     image: v2tec/watchtower
-    restart: always 
+    restart: always
     command: watchtower pipeline-build pipeline-test wpdev --interval 30
     volumes:
       - "${HOME}/.docker/config.json:/config.json"
