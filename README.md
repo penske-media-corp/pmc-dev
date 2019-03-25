@@ -1,4 +1,4 @@
-# PMC-DEV
+#rtcamp is added PMC-DEV
 Local dev configuration/tools to ease workflow with PMC projects for local dev. This project should assume as little about the host and remain as configurable as possible.
 
 ## Features
@@ -14,7 +14,7 @@ Local dev configuration/tools to ease workflow with PMC projects for local dev. 
 	- [mkcert](https://github.com/FiloSottile/mkcert)
 - Clone this repository
 - Docker Hub login
-	- There is a RO user in LP `pmcbitbucketpipelines` which should be available to all engineers
+	- There is a RO Docker Hub user in LP which should be available to all engineers.
 	- `docker login`
 - Add any host entries for the sites you want enable
 	- `127.0.0.1 traefik.pmcdev.local`
