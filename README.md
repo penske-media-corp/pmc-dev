@@ -1,4 +1,4 @@
-#rtcamp is added PMC-DEV
+#PMC-DEV
 Local dev configuration/tools to ease workflow with PMC projects for local dev. This project should assume as little about the host and remain as configurable as possible.
 
 ## Features
