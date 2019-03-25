@@ -23,7 +23,7 @@ Local dev configuration/tools to ease workflow with PMC projects for local dev. 
 - Start the proxy and setup environment
 	- `. ./dev.sh && traefik up`
 	- The traefik dashboard is at http://traefik.pmcdev.local:8080/dashboard/ or 0.0.0.0:8080
-	- Once the proxy is start
+	- Once the traefik proxy is started you can run as many or as few projects as you want the general outline is in Proxied Sites
 
 ##  Proxied Sites
 Each site to be proxied needs a valid configuration. Documentation for configuration is here: https://confluence.pmcdev.io/x/QIfJAQ
@@ -33,9 +33,14 @@ To launch a configured site the general process is:
 	- cd <theme_dir>
 	- docker-compose up -d
 	- docker-compose run -v /path/to/ssh_rsa_privkey:/root/.ssh/id_rsa --rm pipeline-build
+		- This step installs dependencies and sets up mysql db for project
+		- Only need to run when installing or updating dependencies as well as building assets
 		- @NOTE: The colon between your privkey and `/root/.ssh/id_rsa`
 		- Path to a private key with bitbucket/github access -- don't use a password protected key, it's a pain
 		- An SSH_AUTH_SOCK can also be used instead of an ssh key if you use a hardware key
+	- docker-compose run --rm pipeline-test
+		- Runs tests configured specific to environment of project
+		- All env vars can be overriden via passing the `-e SOME_VAR=somval`
 
 ## Troubleshooting
 
