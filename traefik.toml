@@ -32,4 +32,3 @@ exposedByDefault = true
 usebindportip = true
 swarmMode = false
 swarmModeRefreshSeconds = 15
-
