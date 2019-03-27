@@ -14,10 +14,19 @@ services:
       - "${PMC_DEV_BIND_IP}:8080:8080"
       - "${PMC_DEV_BIND_IP}:80:80"
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - './_wildcard.pmcdev.local-key.pem:/certs/_wildcard.pmcdev.local-key.pem'
       - './_wildcard.pmcdev.local.pem:/certs/_wildcard.pmcdev.local.pem'
       - './traefik.toml:/etc/traefik/traefik.toml'
-      - '/var/run/docker.sock:/var/run/docker.sock'
+
+  watchtower:
+    image: v2tec/watchtower
+    restart: always
+    command: watchtower pipeline-build pipeline-test wpdev --interval 30
+    volumes:
+      - "${HOME}/.docker/config.json:/config.json"
+      - /var/run/docker.sock:/var/run/docker.sock
+
 networks:
   default:
     external:

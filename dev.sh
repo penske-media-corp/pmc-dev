@@ -41,13 +41,7 @@ traefik_up() {
 		docker network create traefik --gateway $PMC_TRAEFIK_GATEWAY --subnet $PMC_TRAEFIK_SUBNET
 	fi
 
-	if [ -z "$(docker ps --filter "name=${PMC_TRAEFIK_NETWORK}" | grep "${PMC_TRAEFIK_NETWORK}" )" ] ; then
-		if [[ ! -z "$1" && "$1" == "--force-recreate" ]] ; then
-			docker-compose up -d --force-recreate
-		else
-			docker-compose up -d
-		fi
-	fi
+	docker-compose up -d --force-recreate
 }
 
 traefik_down() {
@@ -60,11 +54,12 @@ traefik() {
 		install_mkcert '*.pmcdev.local'
 	fi
 
-	if [ 'up' == "${1}" ]
-		then traefik_up "${1}"
+	if [[ "up" == "${1}" ]]
+		then traefik_up
 	fi
 
-	if [ 'down' == "${1}" ]
+
+	if [[ "down" == "${1}" ]]
 		then traefik_down
 	fi
 }
