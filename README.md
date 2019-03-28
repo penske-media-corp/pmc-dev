@@ -70,3 +70,8 @@ By default Traefik will bind to all interfaces - you can override this with the 
 
 #### Add Additional Loopback Addresses on Mac OS
 To add another loopback IP address on Mac, install the Launch Daemon from [contrib/io.pmcdev.ifconfig.plist](contrib/io.pmcdev.ifconfig.plist), and set `PMC_DEV_BIND_IP` to be `127.0.0.2` (or whatever IP you configure in the Launch Daemon).
+
+### Issues & PRs
+If there's something you don't see support for or needs more work please submit issues to DevOps or feel free to create your own PR
+
+	- Please submit issues to (DevOps)[https://jira.pmcdev.io/secure/CreateIssueDetails!init.jspa?pid=11604&issuetype=7]
