@@ -2,7 +2,7 @@
 
 # @see: https://github.com/FiloSottile/mkcert
 install_mkcert() {
-	type -P "mkcert" &> /dev/null
+	type -p "mkcert" &> /dev/null
 	if [ $? -ne 0 ] ; then
 		echo "ERROR: Could not find mkcert binary - wildcard certs will not be installed"
 		return 1
