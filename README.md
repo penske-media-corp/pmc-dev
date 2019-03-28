@@ -12,6 +12,7 @@ Local dev configuration/tools to ease workflow with PMC projects for local dev. 
 	- docker
 	- docker-compose
 	- [mkcert](https://github.com/FiloSottile/mkcert)
+	- Make sure that ports 80, 443, 8080 are free on your host system
 - Clone this repository
 - Docker Hub login
 	- There is a RO Docker Hub user in LP which should be available to all engineers.
