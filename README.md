@@ -12,6 +12,8 @@ Local dev proxy, ssl, high level dev stack
 	- docker-compose
 	- [mkcert](https://github.com/FiloSottile/mkcert)
 	- Make sure that ports 80, 443, 8080 are free on your host system
+- Increase memory limits in Docker Desktop
+  - Open Preferences -> Advanced. Change Memory to 6G and swap to 4G
 - Clone this repository
 - Docker Hub login (optional)
 	- There is a RO Docker Hub user in LP which should be available to all engineers.
