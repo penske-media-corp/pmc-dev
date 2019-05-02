@@ -1,12 +1,11 @@
-#PMC-DEV
-Local dev configuration/tools to ease workflow with PMC projects for local dev. This project should assume as little about the host and remain as configurable as possible.
+# PMC-DEV
+Local dev proxy, ssl, high level dev stack
 
 ## Features
 - Local web proxy using traefik so multiple instances of PMC projects can be ran simultaneously
 - SSL instructions and configuration using mkcert
-- Watchtower to automatically keep docker containers updated
 
-## Setup & prerequisites
+## Requirements
 - Ensure the following are up to date and installed on the host system
 	- git
 	- docker
@@ -14,34 +13,38 @@ Local dev configuration/tools to ease workflow with PMC projects for local dev. 
 	- [mkcert](https://github.com/FiloSottile/mkcert)
 	- Make sure that ports 80, 443, 8080 are free on your host system
 - Clone this repository
-- Docker Hub login
+- Docker Hub login (optional)
 	- There is a RO Docker Hub user in LP which should be available to all engineers.
 	- `docker login`
-- Add any host entries for the sites you want enable
+- Add any host entries for the sites you want enable to your `/etc/hosts` file or dns manager
 	- `127.0.0.1 traefik.pmcdev.local`
 	- `127.0.0.1 <theme_folder_name>.pmcdev.local`
 
-- Start the proxy and setup environment
-	- `. ./dev.sh && traefik up`
-	- The traefik dashboard is at http://traefik.pmcdev.local:8080/dashboard/ or 0.0.0.0:8080
-	- Once the traefik proxy is started you can run as many or as few projects as you want the general outline is in Proxied Sites
+## Proxy Startup
+- Start the proxy and setup environment:
+	- Run `. ./init.sh` in a terminal window
+		- This will create the traefik proxy network and start the stack defined in docker-compose
+		- Starting/Restarting traefik that any `docker-compose` command will work
+	- The traefik dashboard is at http://traefik.pmcdev.local:8080/dashboard or http://0.0.0.0:8080/dashboard
+	- Once started the proxy will route all traffic on specified ports using `*.pmcdev.local` domains
+* [Setup a key](https://confluence.atlassian.com/bitbucket/use-ssh-keys-in-bitbucket-pipelines-847452940.html) which you want to use for access to private repositories by setting an environment variable.
+	* This cannot have a passphrase
+	* `export PMC_CI_ENCODED_KEY=$(base64 -w 0 < my_ssh_key)`
+	* Without this key you will not be able to build any private dependencies
+	* Build the project and it's dependencies
 
 ##  Proxied Sites
-Each site to be proxied needs a valid configuration. Documentation for configuration is here: https://confluence.pmcdev.io/x/QIfJAQ
+Each site to be proxied needs a valid configuration. Documentation for configuration is in  [contrib](contrib)
 
-To launch a configured site the general process is:
+### Starting a project
+To spin up a new site the general process is
 
-	- cd <theme_dir>
-	- docker-compose up -d
-	- docker-compose run -v /path/to/ssh_rsa_privkey:/root/.ssh/id_rsa --rm pipeline-build
-		- This step installs dependencies and sets up mysql db for project
-		- Only need to run when installing or updating dependencies as well as building assets
-		- @NOTE: The colon between your privkey and `/root/.ssh/id_rsa`
-		- Path to a private key with bitbucket/github access -- don't use a password protected key, it's a pain
-		- An SSH_AUTH_SOCK can also be used instead of an ssh key if you use a hardware key
-	- docker-compose run --rm pipeline-test
-		- Runs tests configured specific to environment of project
-		- All env vars can be overriden via passing the `-e SOME_VAR=somval`
+* `cd <theme_dir>`
+* `docker-compose up -d`
+* Running tests
+	* `docker-compose run --rm pipeline-test` will run exactly what pipeline runs
+	* Runs tests configured specific to environment of project
+	* All env vars can be overriden via passing the `-e VAR=val` which can be found in .env or the conf template
 
 ## Troubleshooting
 
@@ -70,7 +73,7 @@ And re-launch Docker.
 By default Traefik will bind to all interfaces - you can override this with the `PMC_DEV_BIND_IP` environment variable. If you change this you will need to update your host entries as well.
 
 #### Add Additional Loopback Addresses on Mac OS
-To add another loopback IP address on Mac, install the Launch Daemon from [contrib/io.pmcdev.ifconfig.plist](contrib/io.pmcdev.ifconfig.plist), and set `PMC_DEV_BIND_IP` to be `127.0.0.2` (or whatever IP you configure in the Launch Daemon).
+To add another loopback IP address on Mac, install the Launch Daemon from [here](https://gist.github.com/pmc-mirror/6a04a93b50ff22325fcd926c8305cded), and set `PMC_DEV_BIND_IP` to be `127.0.0.2` (or whatever IP you configure in the Launch Daemon).
 
 ### Issues & PRs
 If there's something you don't see support for or needs more work please submit issues to DevOps or feel free to create your own PR
