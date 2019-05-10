@@ -13,7 +13,7 @@ Local dev proxy, ssl, high level dev stack
 	- [mkcert](https://github.com/FiloSottile/mkcert)
 	- Make sure that ports 80, 443, 8080 are free on your host system
 - Increase memory limits in Docker Desktop
-  - Open Preferences -> Advanced. Change Memory to 6G and swap to 4G
+	- Open Preferences -> Advanced. Change Memory to 6G and swap to 4G
 - Clone this repository
 - Docker Hub login (optional)
 	- There is a RO Docker Hub user in LP which should be available to all engineers.
@@ -70,6 +70,18 @@ If the output is "Path had bad ownership/permissions" then run:
 And re-launch Docker.
 
 ## Advanced
+
+### Auto build|test
+On linux machines you can monitor the current project scope for file changes. Doing so will free yourself from having to run tests manually on file changes. Just keep open a terminal window and monitor for changes.
+```
+monit_files() {
+	while inotifywait -e modify "${1}"; do
+		docker-compose run --rm "pipeline-${2}"
+	done
+}
+monit_files ./inc test
+monit_files ./assets build
+```
 
 ### Binding to a specific IP address
 By default Traefik will bind to all interfaces - you can override this with the `PMC_DEV_BIND_IP` environment variable. If you change this you will need to update your host entries as well.
