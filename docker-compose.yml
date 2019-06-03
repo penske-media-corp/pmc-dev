@@ -6,6 +6,7 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.frontend.rule=HostRegexp:{domain:^traefik.*}"
+      - "traefik.port=8080"
     networks:
       traefik:
         ipv4_address: "${PMC_TRAEFIK_IP}"
