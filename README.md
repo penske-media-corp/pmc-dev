@@ -93,3 +93,11 @@ To add another loopback IP address on Mac, install the Launch Daemon from [here]
 If there's something you don't see support for or needs more work please submit issues to DevOps or feel free to create your own PR
 
 	- Please submit issues to (DevOps)[https://jira.pmcdev.io/secure/CreateIssueDetails!init.jspa?pid=11604&issuetype=7]
+
+## TIPS
+
+On Windows OS, the ssh key can be encoded using following commands:
+		
+	docker run --rm -it --entrypoint /bin/bash -v ~/.ssh/id_rsa:/root/.ssh/id_rsa penskemediacorporation/pipeline-build -c "base64 -w 0 < /root/.ssh/id_rsa" > base64-key
+	set /p PMC_CI_ENCODED_KEY=<base64-key
+	del base64-key
