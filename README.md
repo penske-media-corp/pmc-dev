@@ -32,6 +32,7 @@ Local dev proxy, ssl, high level dev stack
 * [Setup a key](https://confluence.atlassian.com/bitbucket/use-ssh-keys-in-bitbucket-pipelines-847452940.html) which you want to use for access to private repositories by setting an environment variable.
 	* This cannot have a passphrase
 	* `export PMC_CI_ENCODED_KEY=$(base64 -w 0 < my_ssh_key)`
+		- See TIPS section for more details on Windows & MacOS if there is issue
 	* Without this key you will not be able to build any private dependencies
 	* Build the project and it's dependencies
 
@@ -98,6 +99,10 @@ If there's something you don't see support for or needs more work please submit 
 
 On Windows OS, the ssh key can be encoded using following commands:
 		
-	docker run --rm -it --entrypoint /bin/bash -v ~/.ssh/id_rsa:/root/.ssh/id_rsa penskemediacorporation/pipeline-build -c "base64 -w 0 < /root/.ssh/id_rsa" > base64-key
-	set /p PMC_CI_ENCODED_KEY=<base64-key
-	del base64-key
+	docker run --rm -it --entrypoint /bin/bash -v ~/.ssh/id_rsa:/root/.ssh/id_rsa -v ~/:/home/user penskemediacorporation/pipeline-build -c "echo -n 'set PMC_CI_ENCODED_KEY=' > /home/user/.ssh/set-pmc-ci-key.cmd && base64 -w 0 < /root/.ssh/id_rsa >>/home/user/.ssh/set-pmc-ci-key.cmd"
+	call %USERPROFILE%\.ssh\set-pmc-ci-key.cmd
+
+On Mac OS, the ssh key can be encoded using following commands:
+
+	docker run --rm -it --entrypoint /bin/bash -v ~/.ssh/id_rsa:/root/.ssh/id_rsa -v ~/:/home/user penskemediacorporation/pipeline-build -c "echo -n 'PMC_CI_ENCODED_KEY=' > /home/user/.ssh/set-pmc-ci-key.sh && base64 -w 0 < /root/.ssh/id_rsa >>/home/user/.ssh/set-pmc-ci-key.sh"
+	source ~/.ssh/set-pmc-ci-key.sh
