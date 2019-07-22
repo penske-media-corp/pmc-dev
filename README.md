@@ -22,7 +22,7 @@ Local dev proxy, ssl, high level dev stack
 	- `docker login`
 - Add any host entries for the sites you want enabled to your `/etc/hosts` file or dns manager
 	- Must add: `127.0.0.1 traefik.pmcdev.local`
-	- Add any additional: `127.0.0.1 <theme_folder_name>.pmcdev.local`
+	- Add any additional: `127.0.0.1 <theme_folder_name>.pmcdev.local` (see TIPS for easy tricks for this setup step)
 
 ## Proxy Startup
 - Setup a key which you want to use for access to private repositories by setting an environment variable.
@@ -107,6 +107,7 @@ If there's something you don't see support for or needs more work please submit 
 
 ## TIPS
 
+### SSH Keys
 On Windows OS, the ssh key can be encoded using following commands:
 		
 	docker run --rm -it --entrypoint /bin/bash -v ~/.ssh/id_rsa:/root/.ssh/id_rsa -v ~/:/home/user penskemediacorporation/pipeline-build -c "echo -n 'set PMC_CI_ENCODED_KEY=' > /home/user/.ssh/set-pmc-ci-key.cmd && base64 -w 0 < /root/.ssh/id_rsa >>/home/user/.ssh/set-pmc-ci-key.cmd"
@@ -116,3 +117,14 @@ On Mac OS, the ssh key can be encoded using following commands:
 
 	docker run --rm -it --entrypoint /bin/bash -v ~/.ssh/id_rsa:/root/.ssh/id_rsa -v ~/:/home/user penskemediacorporation/pipeline-build -c "echo -n 'PMC_CI_ENCODED_KEY=' > /home/user/.ssh/set-pmc-ci-key.sh && base64 -w 0 < /root/.ssh/id_rsa >>/home/user/.ssh/set-pmc-ci-key.sh"
 	source ~/.ssh/set-pmc-ci-key.sh
+
+### Adding host entries
+A couple of other easy ways to do this woulb be `dnsmasq` wildcards or just clone the repos you want and run something like this to your .bashrc: 
+```
+add_hosts() {
+  dirs=(*)
+  for i in "${dirs[@]}"
+    do  echo "$1.pmcdev.local" >> /etc/hosts
+  done
+}
+```
