@@ -3,20 +3,24 @@ Local dev proxy, ssl, high level dev stack
 
 ## Features
 - Local web proxy using traefik so multiple instances of PMC projects can be ran simultaneously
-- SSL instructions and configuration using mkcert
+- Self signed SSL support for local development
+- ssh-agent service to share ssh keys between containers
 
 ## Requirements
 - Ensure the following are up to date and installed on the host system
 	- git
 	- docker
 	- docker-compose
-	- [mkcert](https://github.com/FiloSottile/mkcert)
 	- Make sure that ports 80, 443, 8080 are free on your host system
 
 ## Initial configurations
 - Increase memory limits in Docker Desktop
-	- Open Preferences -> Advanced. Change Memory to 6G and Swap to 4G
-- Clone this repository
+	- Open Preferences -> Advanced. Change Memory to 6G and swap to 4G
+- Grant ssh key `~/.ssh/id_rsa` access to bitbucket, see (https://confluence.atlassian.com/bitbucket/set-up-an-ssh-key-728138079.html) 
+	- Windows OS: `%USERPROFILE%\.ssh\id_rsa`
+	- To use password protected private key, see `Advanced` document section
+- Clone this repository into a working folder
+    - `git clone git@bitbucket.org:penskemediacorp/pmc-dev.git`
 - Docker Hub login (optional)
 	- There is a RO Docker Hub user in LP which should be available to all engineers.
 	- `docker login`
@@ -24,40 +28,81 @@ Local dev proxy, ssl, high level dev stack
 	- Must add: `127.0.0.1 traefik.pmcdev.local`
 	- Add any additional: `127.0.0.1 <theme_folder_name>.pmcdev.local` (see TIPS for easy tricks for this setup step)
 
-## Proxy Startup
-- Setup a key which you want to use for access to private repositories by setting an environment variable.
+## Multi wp projects development (recommended)
+
+- Start up the services (Order of commands execution are impportant)
+	1. Initialize the pmc wp themes 
+		- `docker-compose run --rm shell init-wp`
+	2. Startup the WP service 
+		- `docker-compose up -d wp`
+	3. Check the wp service start successfully 
+		- `docker-compose logs wp` and look for string `INFO success: nginx entered RUNNING state`
+- Verify all dependencies services are started
+	- Check service status: `docker-compose ps`
+	- Open browser and access https://traefik.pmcdev.local
+
+### Starting a project
+
+- Checkout an existing WP project
+	- add host entries to `etc/hosts` file
+	- run `docker-compose run --rm shell init-wp [pmc-wp-theme-name]`
+	- browse the site: `https://[pmc-wp-theme-name].pmcdev.local`
+
+### Run unit test
+
+- Open a shell session `docker-compose run --rm shell'
+- Once within the shell session, you can run phpunit, phpcs, etc..
+	- pmc-plugins:
+		- `cd /pmc-dev/wp-src/plugins/pmc-plugins/pmc-unit-test-example && phpunit`
+		- `cd /pmc-dev/wp-src/plugins/pmc-plugins/pmc-unit-test-example && phpcs`
+	- wp themes:
+		- `cd /pmc-dev/wp-src/themes/pmc-variety && phpunit`
+		- `cd /pmc-dev/wp-src/themes/pmc-variety && phpcs`
+
+## PMC Docker Images
+The only time we need to rebuild these docker images is if there are configuration changes.
+For example, SSL certificate need to be update. Add new ssh key to ssh-agent, etc.
+
+- Traefik (penskemediacorporation/traefik)
+
+		cd pmc-dev/docker/traefik
+		# build the docker image
+		docker-compose build
+		# push the newly built image to docker hub
+		docker-compose push
+		
+- ssh-agent (penskemediacorporation/ssh-agent)
+
+		cd pmc-dev/docker/ssh-agent
+		# build the docker image
+		docker-compose build
+		# push the newly built image to docker hub
+
+## Proxy site development for standalone project (including wp projects)
+- Startup the proxy traefik service
+	- `cd pmc-dev`
+	- `docker-compose up -d traefik`
+- Verify the service started properly
+	- Check service status: `docker-compose ps`
+	- Open browser and access https://traefik.pmcdev.local
+- Starting a project
 	- [Setup](https://confluence.atlassian.com/bitbucket/set-up-an-ssh-key-728138079.html) the key on your machine
 		- This cannot have a passphrase
 		- If you are creating, rather than modifying the .ssh file you may need to change the permissions
 			- `chmod 700 ~/.ssh`
 			- `chmod 600 ~/.ssh/name_of_key_file`
-	- [Add] key to bitbucket (https://confluence.atlassian.com/bitbucket/use-ssh-keys-in-bitbucket-pipelines-847452940.html)
-	- Export the key `export PMC_CI_ENCODED_KEY=$(base64 -w 0 < my_ssh_key)`
-		- See TIPS section for more details on Windows & MacOS if there is issue
-	- Without this key you will not be able to build any private dependencies
-- Start the proxy and setup environment:
-	- Run `. ./init.sh` in a terminal window
-		- This will create the traefik proxy network and start the stack defined in docker-compose
-		- Starting/Restarting traefik that any `docker-compose` command will work
-	- The traefik dashboard is at http://traefik.pmcdev.local:8080/dashboard or http://0.0.0.0:8080/dashboard
-	- Once started the proxy will route all traffic on specified ports using `*.pmcdev.local` domains
-- Build the project and it's dependencies
-	- Run `docker-compose up -d` in pmc-dev as well as whatever repo you are working in
-	- In the repo you are working in, run the build: `docker-compose run --rm pipeline-build`
-
-##  Proxied Sites
-Each site to be proxied needs a valid configuration. Documentation for configuration is in  [contrib](contrib)
-
-### Starting a project
-To spin up a new site the general process is
-
-* `cd <theme_dir>`
-* `docker-compose up -d`
-* `docker-compose run --rm pipeline-build`
-* Running tests
-	* `docker-compose run --rm pipeline-test` will run exactly what pipeline runs
-	* Runs tests configured specific to environment of project
-	* All env vars can be overriden via passing the `-e VAR=val` which can be found in .env or the conf template
+		- [Add] key to bitbucket (https://confluence.atlassian.com/bitbucket/use-ssh-keys-in-bitbucket-pipelines-847452940.html)
+		- Export the key `export PMC_CI_ENCODED_KEY=$(base64 -w 0 < my_ssh_key)`
+			- See TIPS section for more details on Windows & MacOS if there is issue
+		- Without this key you will not be able to build any private dependencies
+	- checkout the project repository
+	- build the project
+		- `cd project-folder`
+		- `docker-compose run --rm pipeline-build`
+		- `docker-compose up -d wp`
+	- run tests
+		- `cd proejct-folder`
+		- `docker-compose run --rm pipeline-test`
 
 ## Troubleshooting
 
@@ -97,13 +142,52 @@ monit_files ./assets build
 ### Binding to a specific IP address
 By default Traefik will bind to all interfaces - you can override this with the `PMC_DEV_BIND_IP` environment variable. If you change this you will need to update your host entries as well.
 
+### Route traffics to docker desktop v-switch traefik network interface
+
+	route -p add 172.16.0.0 MASK 255.240.0.0 10.0.75.2
+	
+This will allow direct ip access from windows host to the container assigned IP.  
+
+For additional details on docker desktop and hyper-v, refer to following document:
+
+- [https://docs.docker.com/docker-for-windows/](https://docs.docker.com/docker-for-windows/)
+- [https://docs.docker.com/machine/drivers/hyper-v/](https://docs.docker.com/machine/drivers/hyper-v/)
+
 #### Add Additional Loopback Addresses on Mac OS
 To add another loopback IP address on Mac, install the Launch Daemon from [here](https://gist.github.com/pmc-mirror/6a04a93b50ff22325fcd926c8305cded), and set `PMC_DEV_BIND_IP` to be `127.0.0.2` (or whatever IP you configure in the Launch Daemon).
 
-### Issues & PRs
-If there's something you don't see support for or needs more work please submit issues to DevOps or feel free to create your own PR
+### Change the default docker private network allocation pool size:
 
-	- Please submit issues to (DevOps)[https://jira.pmcdev.io/secure/CreateIssueDetails!init.jspa?pid=11604&issuetype=7]
+update the daemon.json file and restart docker service
+
+	{
+	  "registry-mirrors": [],
+	  "insecure-registries": [],
+	  "debug": true,
+	  "experimental": false,
+	  "default-address-pools": [
+		{"base":"172.16.0.0/12","size":24}
+	  ]
+	} 
+
+Windows OS location: `%USERPROFILE%.docker\daemon.json`
+
+### Add a password protected ssh private key to the ssh-agent service
+
+Assuming you have the private key save in your host folder `~/.ssh` folder, eg. `~/.ssh/password-protected-key`
+ 
+`docker-compose exec ssh-agent /bin/bash -c "cat /root/.ssh/password-protected-key | ssh-add -"`
+
+
+# Known Issues
+ - Mac Docker Desktop cannot connect to container IP from host: https://docs.docker.com/docker-for-mac/networking/
+ - Windows Docker Desktop: Error starting userland proxy, https://github.com/docker/for-win/issues/573
+ - Docker won't start containers after win 10 shutdown and power up: https://github.com/docker/for-win/issues/1038 
+
+# Possible solution for Mac to connect via container ip:
+	
+	sudo ifconfig lo0 alias 172.30.80.80/24
+	sudo ifconfig lo0 alias 172.30.30.6/24
 
 ## TIPS
 
@@ -124,7 +208,12 @@ A couple of other easy ways to do this woulb be `dnsmasq` wildcards or just clon
 add_hosts() {
   dirs=(*)
   for i in "${dirs[@]}"
-    do  echo "$1.pmcdev.local" >> /etc/hosts
+	do  echo "$1.pmcdev.local" >> /etc/hosts
   done
 }
 ```
+
+### Issues & PRs
+If there's something you don't see support for or needs more work please submit issues to DevOps or feel free to create your own PR
+
+	- Please submit issues to (DevOps)[https://jira.pmcdev.io/secure/CreateIssueDetails!init.jspa?pid=11604&issuetype=7]

@@ -1,28 +1,198 @@
-version: '3'
+version: '3.5'
 
 services:
+
+  vip:
+    image: penskemediacorporation/vip-go-cli
+    entrypoint:
+      - /usr/local/bin/vip
+    volumes:
+      - configstore:/root/.config/configstore
+
+  shell:
+    entrypoint:
+      - /bin/bash
+      - /pmc-dev/bin/docker-entrypoint.sh
+    command: shell
+    container_name: shell
+    depends_on:
+      - ssh-agent
+      - memcached
+      - mysql
+      - redis
+    image: penskemediacorporation/pipeline:vipgo
+    restart: "no"
+    labels:
+      - "traefik.enable=false"
+    networks:
+      - default
+    working_dir: /pmc-dev/wp-src
+    env_file:
+      - docker-compose.env
+    environment:
+      - XDEBUG_REMOTE_HOST=${XDEBUG_REMOTE_HOST-}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - codesniffer:/usr/share/php/codesniffer
+      - root:/root
+      - ssh:/ssh
+      - tmp:/tmp
+      - ./:/pmc-dev
+      - ./wp-root:/var/www/html
+
+  wp:
+    entrypoint:
+      - /bin/bash
+      - /pmc-dev/bin/docker-entrypoint.sh
+    command: start-wp
+    container_name: wp
+    depends_on:
+      - ssh-agent
+      - memcached
+      - mysql
+      - redis
+      - traefik
+    image: penskemediacorporation/wpdev:vipgo
+    restart: "unless-stopped"
+    labels:
+      - "traefik.priority=2"
+      - "traefik.frontend.rule=HostRegexp:{domain:.*}"
+    networks:
+      default:
+        aliases:
+          - wp
+    env_file:
+      - docker-compose.env
+    environment:
+      - XDEBUG_REMOTE_HOST="${XDEBUG_REMOTE_HOST-}"
+    volumes:
+      - root:/root
+      - tmp:/tmp
+      - ssh:/ssh
+      - ./:/pmc-dev
+      - ./wp-root:/var/www/html
+
+  redis:
+    container_name: redis
+    image: redis
+    restart: "unless-stopped"
+    labels:
+      - "traefik.enable=false"
+    networks:
+      default:
+        aliases:
+          - redis
+
+  memcached:
+    container_name: memcached
+    image: memcached
+    restart: "unless-stopped"
+    labels:
+      - "traefik.enable=false"
+    networks:
+      default:
+        aliases:
+          - memcached
+
+  mysql:
+    container_name: mysql
+    # Note: we're using the official mysql image for mysql workbench compatible since it doesn't work with mariadb
+    # use docker-composer.override.yml to override prefer to use mariadb image
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: "unless-stopped"
+    labels:
+      - "traefik.enable=false"
+    networks:
+      default:
+        ipv4_address: 172.30.30.6
+        aliases:
+          - mysql
+    ports:
+      # ${PMC_DEV_MYSQL_IP} can be empty or string format "x.x.x.x"
+      - "${PMC_DEV_MYSQL_IP-0.0.0.0}:3306:3306"
+    env_file:
+      - docker-compose.env
+    volumes:
+      - ./:/pmc-dev
+      - mysql:/var/lib/mysql
+
+  ssh-agent:
+    container_name: ssh-agent
+    image: penskemediacorporation/docker-ssh-agent
+    restart: "unless-stopped"
+    labels:
+      - "traefik.enable=false"
+    networks:
+      default:
+        aliases:
+          - ssh-agent
+    working_dir: /pmc-dev
+    env_file:
+      - docker-compose.env
+    environment:
+      PMC_CI_ENCODED_KEY: "${PMC_CI_ENCODED_KEY-}"
+    secrets:
+      - ssh_key
+    volumes:
+      - root:/root
+      - ssh:/ssh
+      - tmp:/tmp
+      - ./:/pmc-dev
+      - ~/.ssh:/root/.ssh
+
   traefik:
-    image: traefik:v1.7.16
-    restart: unless-stopped
+    container_name: traefik
+    image: penskemediacorporation/traefik
+    restart: "unless-stopped"
     labels:
       - "traefik.frontend.rule=HostRegexp:{domain:^traefik.*}"
       - "traefik.port=8080"
     networks:
-      traefik:
-        ipv4_address: "${PMC_TRAEFIK_IP}"
+      default:
+        # We want to reserved this IP for future use
+        # ${PMC_DEV_TRAEFIK_IP} can be empty or string format "x.x.x.x"
+        ipv4_address: "${PMC_DEV_TRAEFIK_IP-172.30.80.80}"
+        aliases:
+          - traefik.pmcdev.local
     ports:
-      - "${PMC_DEV_BIND_IP}:443:443"
-      - "${PMC_DEV_BIND_IP}:8080:8080"
-      - "${PMC_DEV_BIND_IP}:80:80"
+      # ${PMC_DEV_BIND_IP} can be empty or string format "x.x.x.x"
+      - "${PMC_DEV_BIND_IP-0.0.0.0}:443:443"
+      - "${PMC_DEV_BIND_IP-0.0.0.0}:8080:8080"
+      - "${PMC_DEV_BIND_IP-0.0.0.0}:80:80"
+    env_file:
+      - docker-compose.env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./_wildcard.pmcdev.local-key.pem:/certs/_wildcard.pmcdev.local-key.pem
-      - ./_wildcard.pmcdev.local.pem:/certs/_wildcard.pmcdev.local.pem
-      - ./traefik.toml:/etc/traefik/traefik.toml
 
 networks:
+  # Using a giant single subnet for everything
+  # docker for window for some reason doesn't like two network interface on a container
+  # windows can't route traffic to the second interface and we have no control on the primary interface assigned
   default:
-    external:
-       name: traefik
-  traefik:
-    external: true
+    name: traefik
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      # We need this subnet to be fixed and reserved for all web traffics.  This can be override by docker-compose.override.yml
+      # We shouldn't need more than class c address on development environment
+      - subnet: 172.30.0.0/16
+
+volumes:
+  mysql:
+    name: mysql
+  root:
+    name: root
+  ssh:
+    name: ssh
+  codesniffer:
+    name: codesniffer
+  tmp:
+    name: tmp
+  configstore:
+    name: configstore
+
+secrets:
+  ssh_key:
+    file: ~/.ssh/id_rsa

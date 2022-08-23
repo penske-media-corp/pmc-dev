@@ -1,0 +1,23 @@
+#!/bin/bash
+
+while [[ -z $(ssh-add -l | grep RSA) ]]
+do
+
+  if [[ -f /run/secrets/ssh_key ]]
+  then
+    cat /run/secrets/ssh_key | ssh-add -
+  fi
+
+  if [[ -f /root/.ssh/id_rsa ]]
+  then
+    cat /root/.ssh/id_rsa | ssh-add -
+  fi
+
+  if [[ -n "${PMC_CI_ENCODED_KEY}" ]]
+  then
+    echo "${PMC_CI_ENCODED_KEY}" | base64 -di | ssh-add -
+  fi
+
+  sleep 10
+
+done

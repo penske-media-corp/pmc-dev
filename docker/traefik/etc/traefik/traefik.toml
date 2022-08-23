@@ -4,8 +4,10 @@ logLevel="ERROR"
 
 defaultEntryPoints = ["http", "https"]
 
-[web]
-address = ":8080"
+[api]
+entryPoint = "traefik"
+dashboard = true
+debug = true
 
 [traefikLog]
 
@@ -21,8 +23,8 @@ address = ":8080"
   address = ":443"
     [entryPoints.https.tls]
       [[entryPoints.https.tls.certificates]]
-      certFile = "/certs/_wildcard.pmcdev.local.pem"
-      keyFile = "/certs/_wildcard.pmcdev.local-key.pem"
+      certFile = "/certs/wildcard.pmcdev.local.cert.pem"
+      keyFile = "/certs/wildcard.pmcdev.local.key.pem"
 
 [docker]
 endpoint = "unix:///var/run/docker.sock"

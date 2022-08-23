@@ -1,0 +1,11 @@
+version: '3.5'
+
+services:
+
+  traefik:
+    build:
+      context: .
+    image: penskemediacorporation/traefik
+    restart: "no"
+    volumes:
+      - ./:/srv/src
