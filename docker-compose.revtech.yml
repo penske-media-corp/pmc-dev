@@ -1,0 +1,109 @@
+# docker-compose.revtech.yml
+version: '3.5'
+
+services:
+
+  wp:
+    image: pmc-dev-wp
+    build:
+      context: ./docker/wpdev
+    depends_on:
+      - memcached
+      - traefik
+    restart: "unless-stopped"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.wp-https.entrypoints=websecure
+      - traefik.http.routers.wp-https.priority=1
+      - traefik.http.routers.wp-https.rule=HostRegexp(`{domain:.*}`)
+      - traefik.http.routers.wp-https.tls.certresolver=file
+    networks:
+      default:
+        aliases:
+          - wp
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - docker-compose.env
+    environment:
+      - XDEBUG_REMOTE_HOST="${XDEBUG_REMOTE_HOST-}"
+      - SSH_AUTH_SOCK=/ssh/ssh-agent.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - root:/root
+      - tmp:/tmp
+      - ssh:/ssh
+      - ./:/pmc-dev
+      - ./wp-root:/var/www/html
+
+  memcached:
+    image: memcached
+    restart: "unless-stopped"
+    labels:
+      - "traefik.enable=false"
+    networks:
+      default:
+        aliases:
+          - memcached
+
+  ssh-agent:
+    image: pmc-dev-ssh-agent
+    build:
+      context: ./docker/ssh-agent
+    restart: "unless-stopped"
+    labels:
+      - "traefik.enable=false"
+    networks:
+      default:
+        aliases:
+          - ssh-agent
+    working_dir: /pmc-dev
+    env_file:
+      - docker-compose.env
+    environment:
+      - PMC_CI_ENCODED_KEY="${SSH_ENCODED_KEY-}"
+      - SSH_AUTH_SOCK=/ssh/ssh-agent.sock
+    secrets:
+      - ssh_key
+    volumes:
+      - root:/root
+      - ssh:/ssh
+      - tmp:/tmp
+      - ./:/pmc-dev
+      - ~/.ssh:/root/.ssh
+
+  traefik:
+    image: traefik:2.9
+    restart: "unless-stopped"
+    networks:
+      default:
+        aliases:
+          - traefik.pmcdev.local
+          - traefik
+          - pmcdev
+    env_file:
+      - docker-compose.env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker/traefik:/etc/traefik
+
+networks:
+  default:
+    name: revtech-net
+    external: true
+
+volumes:
+  codesniffer:
+    name: codesniffer
+  configstore:
+    name: configstore
+  root:
+    name: root
+  ssh:
+    name: ssh
+  tmp:
+    name: tmp
+
+secrets:
+  ssh_key:
+    file: ~/.ssh/id_rsa
