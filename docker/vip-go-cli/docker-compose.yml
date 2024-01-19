@@ -1,9 +1,0 @@
-version: '3.5'
-
-services:
-
-  vip-go-cli:
-    build:
-      context: .
-    image: penskemediacorporation/vip-go-cli
-    restart: "no"

@@ -13,9 +13,9 @@ do
     cat /root/.ssh/id_rsa | ssh-add -
   fi
 
-  if [[ -n "${PMC_CI_ENCODED_KEY}" ]]
+  if [[ -n "${SSH_ENCODED_KEY}" ]]
   then
-    echo "${PMC_CI_ENCODED_KEY}" | base64 -di | ssh-add -
+    echo "${SSH_ENCODED_KEY}" | base64 -di | ssh-add -
   fi
 
   sleep 10

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+CMD="$1"
+
+if [[ -z "${CMD}" ]]; then
+  CMD=/bin/bash
+fi
+
+docker compose up -d wp
+docker compose exec wp env --chdir=/pmc-dev/wp-src -S "${CMD}"

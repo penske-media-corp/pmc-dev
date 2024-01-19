@@ -1,8 +1,0 @@
-#!/bin/bash
-
-PLUGIN=${1}
-
-. <( cat /usr/local/bin/*-functions.sh )
-
-mkdir -p ${PMC_DEV_ROOT}/wp-src/plugins
-bitbucket_checkout ${PMC_DEV_ROOT}/wp-src/plugins/${PLUGIN} ${PLUGIN} 0
