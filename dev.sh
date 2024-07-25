@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# https://kodekloud.com/blog/bash-getopts/
+
 PMC_DEV_CODE_SNIFFER_REPO=git@github.com:penske-media-corp/pmc-codesniffer.git
 PMC_DEV_PLUGINS_REPO=git@github.com:penske-media-corp/pmc-plugins.git
 PMC_DEV_VIP_GO_PLUGINS_REPO=git@github.com:penske-media-corp/pmc-vip-go-plugins.git
@@ -27,6 +29,10 @@ fi
 
 if [[ ! -d ${PMC_DEV_VIP_GO_MUPLUGINS_PATH}/.git ]]; then
   git clone ${PMC_DEV_VIP_GO_MUPLUGINS_REPO} ${PMC_DEV_VIP_GO_MUPLUGINS_PATH}
+fi
+
+if [[ ! -f ./docker-compose.yml ]]; then
+  ln -sf ./docker-compose.default.yml ./docker-compose.yml
 fi
 
 docker compose up -d wp
