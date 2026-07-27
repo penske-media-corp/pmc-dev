@@ -1,8 +1,8 @@
-ARG NVM_VERSION=0.40.3
-ARG PHP_VERSION=8.2
-ARG WP_VERSION=6.7.2
+ARG NVM_VERSION=0.40.6
+ARG PHP_VERSION=8.3
+ARG WP_VERSION=6.9.5
 
-FROM ubuntu:22.04 AS base
+FROM ubuntu:24.04 AS base
 LABEL org.opencontainers.image.authors="Hau Vong <hvong@pmc.com>"
 
 ARG NVM_VERSION
@@ -34,6 +34,7 @@ RUN apt-get update \
   && add-apt-repository -y ppa:ondrej/php \
   && apt-get update \
   && apt-get install --no-install-recommends --no-install-suggests -y \
+    adduser \
     apt-transport-https \
     build-essential \
     bzip2 \
@@ -53,6 +54,8 @@ RUN apt-get update \
     mysql-client \
     nginx \
     openssl \
+    pipx \
+    python3-setuptools \
     ssh \
     subversion \
     supervisor \
@@ -79,9 +82,7 @@ RUN apt-get update \
     php${PHP_VERSION}-xdebug \
     php${PHP_VERSION}-xml \
     php${PHP_VERSION}-bz2 \
-  && ln -fs $(which pip3) /usr/bin/pip \
-  && pip install setuptools \
-  && pip install shyaml \
+  && PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install shyaml \
   && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer1 --1 \
   && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer2 --2 \
   && ln -fs /usr/local/bin/composer2 /usr/local/bin/composer \
@@ -109,6 +110,7 @@ RUN apt-get update \
   && chmod +x /usr/bin/* \
   && mkdir -p -m 0600 ~/.ssh \
   && ssh-keyscan github.com >> ~/.ssh/known_hosts \
+  && deluser ubuntu \
   && deluser www-data \
     && addgroup --gid 1000 --system www-data \
     && adduser --system --shell /bin/bash  --uid 1000 --gid 1000 --disabled-password www-data \
