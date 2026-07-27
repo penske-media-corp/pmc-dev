@@ -1,5 +1,4 @@
 # docker-compose.revtech.yml
-version: '3.5'
 
 services:
 

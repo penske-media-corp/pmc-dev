@@ -1,9 +1,9 @@
-ARG NVM_VERSION=0.39.7
+ARG NVM_VERSION=0.40.3
 ARG PHP_VERSION=8.2
-ARG WP_VERSION=6.3
+ARG WP_VERSION=6.7.2
 
-FROM ubuntu:22.04 as base
-MAINTAINER Hau Vong <hvong@pmc.com>
+FROM ubuntu:22.04 AS base
+LABEL org.opencontainers.image.authors="Hau Vong <hvong@pmc.com>"
 
 ARG NVM_VERSION
 ARG PHP_VERSION
@@ -121,7 +121,7 @@ RUN apt-get update \
   && rm -rf /etc/cron.d/certbot /var/www/html/*
 
 # Using this build layer to avoid non-use app from embeded in the final docker image
-FROM base as build
+FROM base AS build
 
 ARG PHP_VERSION
 ENV PHP_VERSION=${PHP_VERSION}
@@ -196,7 +196,7 @@ RUN --mount=type=ssh /bin/bash -x -c ". <(cat /build/usr/local/bin/*-functions.s
   && ls -al /build/var/www /build/usr/local/src
 
 FROM base
-MAINTAINER Hau Vong <hvong@pmc.com>
+LABEL org.opencontainers.image.authors="Hau Vong <hvong@pmc.com>"
 
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
