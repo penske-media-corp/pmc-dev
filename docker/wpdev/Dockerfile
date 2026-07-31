@@ -200,9 +200,9 @@ RUN --mount=type=ssh /bin/bash -x -c ". <(cat /build/usr/local/bin/*-functions.s
 FROM base
 LABEL org.opencontainers.image.authors="Hau Vong <hvong@pmc.com>"
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 COPY --from=build /build/ /
 
