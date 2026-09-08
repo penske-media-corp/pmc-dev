@@ -44,8 +44,7 @@ http:
         - websecure
       rule: "Host(\`${DOMAIN}\`)"
       service: ${SERVICE_NAME}
-      tls:
-        certresolver: file
+      tls: {}
 
   services:
     ${SERVICE_NAME}:

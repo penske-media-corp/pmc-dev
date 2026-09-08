@@ -54,6 +54,7 @@ RUN apt-get update \
     mysql-client \
     nginx \
     openssl \
+    patch \
     pipx \
     python3-setuptools \
     ssh \
@@ -144,6 +145,20 @@ RUN mv /build/var/www/html/wp-content/plugins/Rewrite-Rules-Inspector-1.3.1 /bui
 RUN svn co --quiet https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/includes /build/var/www/html/wp-tests/tests/phpunit/includes
 
 ADD src/ /build/
+
+# Apply local patches to third-party packages (PHPUnit 9 StandardTestSuiteLoader,
+# so WordPress-style hyphenated test files -- test-class-foo.php -- run by path).
+# The patch tooling is copied to a throwaway /tmp dir (NOT under /build, so it
+# never ships in the final image) and applied to the phpunit inherited from base
+# at /usr/share/php/phpunit. Only the patched file is installed into /build, so
+# `COPY --from=build /build/ /` carries it onto the final `FROM base` image.
+# See patches/ for details.
+COPY patches/ /tmp/patches/
+RUN bash /tmp/patches/apply-patches.sh \
+  && install -D -m 0644 \
+       /usr/share/php/phpunit/vendor/phpunit/phpunit/src/Runner/StandardTestSuiteLoader.php \
+       /build/usr/share/php/phpunit/vendor/phpunit/phpunit/src/Runner/StandardTestSuiteLoader.php \
+  && rm -rf /tmp/patches
 
 # our php mods config are generic, we need to move it to the correct place
 # This way, we only need to maintenace a single version on the source folder

@@ -14,8 +14,16 @@ services:
       - traefik.enable=true
       - traefik.http.routers.wp-https.entrypoints=websecure
       - traefik.http.routers.wp-https.priority=1
-      - traefik.http.routers.wp-https.rule=HostRegexp(`{domain:.*}`)
-      - traefik.http.routers.wp-https.tls.certresolver=file
+      # Traefik v3: HostRegexp uses a raw Go regexp (the v2 `{name:pattern}`
+      # named-group syntax was removed). `.+` = catch-all fallback host.
+      - traefik.http.routers.wp-https.rule=HostRegexp(`.+`)
+      # No ACME certresolver exists; serve TLS from the default cert store
+      # (docker/traefik/conf/ssl.yml). `tls=true` enables TLS on the router.
+      - traefik.http.routers.wp-https.tls=true
+      # wp exposes both 80 and 443, so v3 needs an explicit backend port.
+      # WordPress serves plain HTTP on 80; Traefik terminates TLS.
+      - traefik.http.routers.wp-https.service=wp-https
+      - traefik.http.services.wp-https.loadbalancer.server.port=80
     networks:
       default:
         aliases:
@@ -72,7 +80,9 @@ services:
       - ~/.ssh:/root/.ssh
 
   traefik:
-    image: traefik:2.9
+    # v3 negotiates the Docker API version; v2.9 hard-pinned API 1.24, which
+    # Docker Engine 29.x (min API 1.40) rejects -> provider could not connect.
+    image: traefik:v3.7
     restart: "unless-stopped"
     networks:
       default:

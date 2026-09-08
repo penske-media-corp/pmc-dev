@@ -33,9 +33,6 @@ class Auto_Load {
 	}
 
 	public function action_after_setup_theme() {
-		if ( function_exists('pmc_load_plugin') ) {
-			pmc_load_plugin( 'post-meta-inspector' );
-		}
 
 		$plugins = [];
 

@@ -3,10 +3,9 @@ http:
     traefik:
       entryPoints:
         - websecure
-      rule: "HostRegexp(`{domain:^traefik.*}`)"
+      rule: "HostRegexp(`^traefik.*`)"
       service: traefik
-      tls:
-        certresolver: file
+      tls: {}
 
   services:
     traefik:
