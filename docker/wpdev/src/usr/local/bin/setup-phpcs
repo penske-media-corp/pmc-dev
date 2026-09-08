@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [[ ! -d /pmc-dev/wp-src/packages/pmc-codesniffer/.git ]]; then
+  exit
+fi
+
+. <(cat `dirname $0`/*configure-env*)
+. <( cat /usr/local/bin/*-functions.sh )
+
+pushd /pmc-dev/wp-src/packages/pmc-codesniffer
+composer install --no-autoloader
+
+patch_phpcs
+
+if [[ -f ${PMC_DEV_CODE_SNIFFER_PATH}/vendor/squizlabs/php_codesniffer/bin/phpcs ]]; then
+  ln -sf ${PMC_DEV_CODE_SNIFFER_PATH}/vendor/squizlabs/php_codesniffer/bin/phpcbf /usr/local/bin/
+  ln -sf ${PMC_DEV_CODE_SNIFFER_PATH}/vendor/squizlabs/php_codesniffer/bin/phpcs /usr/local/bin/
+  chmod +x /usr/local/bin/*
+  phpcs --config-set default_standard PmcWpVip
+  phpcs --config-set show_sources 1
+fi
+
+popd

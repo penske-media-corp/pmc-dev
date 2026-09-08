@@ -1,9 +1,0 @@
-version: '3.5'
-
-services:
-
-  ssh-agent:
-    build:
-      context: .
-    image: penskemediacorporation/docker-ssh-agent
-    restart: "no"

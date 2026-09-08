@@ -1,0 +1,14 @@
+http:
+  routers:
+    traefik:
+      entryPoints:
+        - websecure
+      rule: "HostRegexp(`^traefik.*`)"
+      service: traefik
+      tls: {}
+
+  services:
+    traefik:
+      loadBalancer:
+        servers:
+          - url: "http://localhost:8080"

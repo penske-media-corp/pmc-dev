@@ -1,0 +1,7 @@
+#!/bin/bash
+if [[ -f composer.lock && -z "$(grep -E '"plugin-api-version"\s*:\s*"?' composer.lock)" ]]
+then
+  /usr/local/bin/composer1 $@
+else
+  /usr/local/bin/composer2 $@
+fi

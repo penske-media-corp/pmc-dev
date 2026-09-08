@@ -1,0 +1,21 @@
+Subject: [PATCH] PHPUnit 9: run WordPress-style hyphenated test files by path
+
+PHPUnit 9's StandardTestSuiteLoader derives the expected class name from the
+test file's basename and, when matching it against the declared classes, only
+bridges the "\" and "_" separators. WordPress/PMC name test files with hyphens
+(e.g. test-class-foo.php) but name the classes with underscores (Test_Class_Foo),
+so `phpunit tests/test-class-foo.php` fails with "Class ... could not be found".
+
+Normalising hyphens to underscores in the derived name lets a single test file
+be run by its path. A PHP class name can never contain a hyphen, so this is
+safe and is a no-op for files whose names already match their class.
+
+Target: /usr/share/php/phpunit/vendor/phpunit/phpunit/src/Runner/StandardTestSuiteLoader.php
+--- a/src/Runner/StandardTestSuiteLoader.php
++++ b/src/Runner/StandardTestSuiteLoader.php
+@@ -36,4 +36,4 @@ final class StandardTestSuiteLoader implements TestSuiteLoader
+     public function load(string $suiteClassFile): ReflectionClass
+     {
+-        $suiteClassName = basename($suiteClassFile, '.php');
++        $suiteClassName = str_replace('-', '_', basename($suiteClassFile, '.php'));
+         $loadedClasses  = get_declared_classes();

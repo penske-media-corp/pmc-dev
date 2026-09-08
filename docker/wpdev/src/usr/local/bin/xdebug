@@ -1,0 +1,37 @@
+#!/bin/bash -l
+
+XDEBUG=${1}
+XDEBUG_KEY="${2}"
+XDEBUG_REMOTE_HOST="${3}"
+
+if [[ "on" = "${XDEBUG}" ]]; then
+	ln -sf /etc/php/${PHP_VERSION}/mods-available/xdebug.ini /etc/php/${PHP_VERSION}/fpm/conf.d/20-xdebug.ini
+	ln -sf /etc/php/${PHP_VERSION}/mods-available/xdebug.ini /etc/php/${PHP_VERSION}/cli/conf.d/20-xdebug.ini
+elif [[ "off" = "${XDEBUG}" ]]; then
+	rm -f /etc/php/${PHP_VERSION}/fpm/conf.d/20-xdebug.ini /etc/php/${PHP_VERSION}/cli/conf.d/20-xdebug.ini
+fi
+
+if [[ -f /etc/php/${PHP_VERSION}/cli/conf.d/20-xdebug.ini ]]; then
+	echo 'XDEBUG is ON'
+	if [[ -n "${XDEBUG_KEY}" ]]; then
+		export XDEBUG_CONFIG="idekey=${XDEBUG_KEY}"
+		export XDEBUG_SESSION=${XDEBUG_KEY}
+		export WP_TESTS_SKIP_INSTALL=1
+	fi
+	if [[ -n ${XDEBUG_REMOTE_HOST} ]]; then
+		sed -e "s/\(xdebug\..*_host\)=.*/\1=${XDEBUG_REMOTE_HOST}/" -i /etc/php/${PHP_VERSION}/mods-available/xdebug.ini
+	fi
+else
+	echo 'XDEBUG is OFF'
+	unset XDEBUG_SESSION
+	unset XDEBUG_CONFIG
+	unset WP_TESTS_SKIP_INSTALL
+fi
+
+if [[ -S /var/run/supervisor.sock ]]; then
+	supervisorctl restart all
+fi
+
+unset XDEBUG
+unset XDEBUG_KEY
+unset XDEBUG_REMOTE_HOST
